@@ -8,9 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-
-import javax.servlet.RequestDispatcher;
-
 import com.prash.dao.UserDAO;
 import com.prash.model.User;
 
@@ -48,7 +45,7 @@ public class UserServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 	    		break;
-	    	case "delete":
+	    	case "/delete":
 			try {
 				deleteUser(request,response);
 			} catch (ServletException e) {
@@ -62,7 +59,7 @@ public class UserServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 	    		break;
-	    	case "edit":
+	    	case "/edit":
 			try {
 				showEditForm(request,response);
 			} catch (ServletException e) {
@@ -76,7 +73,7 @@ public class UserServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 	    		break;
-	    	case "update":
+	    	case "/update":
 			try {
 				updateUser(request,response);
 			} catch (ServletException e) {
@@ -128,12 +125,16 @@ public class UserServlet extends HttpServlet {
 	       response.sendRedirect("list");
 	}
 	private void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-	     int id=Integer.parseInt(request.getParameter("id")); 
-	     boolean existinguser=userDAO.deleteUser(id);
-	     jakarta.servlet.RequestDispatcher dispatcher=request.getRequestDispatcher("user-form.jsp");
-	     request.setAttribute("user", existinguser);
-	     dispatcher.forward(request, response);
+	    int id = Integer.parseInt(request.getParameter("id"));
+	    User existingUser = userDAO.selectUserByID(id);
+	   
+	    if (existingUser != null) {
+	        request.setAttribute("user", existingUser);
+	        jakarta.servlet.RequestDispatcher dispatcher = request.getRequestDispatcher("user-form.jsp");
+	        dispatcher.forward(request, response);
+	    } 
 	}
+
 	private void updateUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 	    int id=Integer.parseInt(request.getParameter("id"));
 	    String name=request.getParameter("name");
@@ -145,7 +146,7 @@ public class UserServlet extends HttpServlet {
 	    response.sendRedirect("list");
 	}
 	private void listUser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-	    List<User> listUser=userDAO.selectAllUsers(0);	
+	    List<User> listUser=userDAO.selectAllUsers();	
 	    request.setAttribute("listUser", listUser);
 	    jakarta.servlet.RequestDispatcher dispatcher=request.getRequestDispatcher("user-list.jsp");
 	    dispatcher.forward(request, response);

@@ -7,35 +7,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.catalina.connector.Response;
-
 import com.prash.model.User;
 
 public class UserDAO {
 
 	private String jdbcURL="jdbc:mysql://localhost:3306/demo?useSSL=false";
 	private String username="root";
-	private String password="";
+	private String password="prashant";
 	
 	public static final String Insert_Users_Query="INSERT INTO users"+"(name,email,country) VALUES "+"(?,?,?);";
     public static final String Select_Users_Query="SELECT * FROM users";
     public static final String Delete_Users_Query="DELETE FROM users WHERE id=?;";
     public static final String Update_Users_Query="UPDATE users SET name=?,email=?,country=? WHERE id=?;";
+    private static final String SELECT_USER_BY_ID = "select id,name,email,country from users where id =?";
     
     protected Connection getConnection() {
-    	Connection connection=null;
-    	try {
-    		Class.forName("com.jdbc.mysql.Driver");
-    		connection=DriverManager.getConnection(jdbcURL,username,password);
-    		
-    	}catch(SQLException e) {
-    		e.printStackTrace();
-    	}catch(ClassNotFoundException e) {
+        Connection connection = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(jdbcURL, username, password);
+            System.out.println("Connection successful!");
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("Connection failed!");
             e.printStackTrace();
+        }
+        return connection;
     }
-    	return connection;
-    }
+
+
     
     public void insertUser(User user) throws SQLException {
     	try(Connection connection=getConnection()){
@@ -65,7 +64,7 @@ public class UserDAO {
     public User selectUserByID(int id) {
     	User user=null;
     	try(Connection connection=getConnection()){
-    		PreparedStatement preparedStatement=connection.prepareStatement(Select_Users_Query);
+    		PreparedStatement preparedStatement=connection.prepareStatement(SELECT_USER_BY_ID);
     	    preparedStatement.setInt(1,id );
     	    System.out.println(preparedStatement);
     	    
@@ -82,7 +81,7 @@ public class UserDAO {
     	}
     	  return user;
     }
-    public List<User> selectAllUsers(int id) {
+    public List<User> selectAllUsers() {
     	List<User> users=new ArrayList<>();
     	
     	try(Connection connection=getConnection()){
@@ -115,6 +114,12 @@ public class UserDAO {
     }
     return rowDeleted;
     }
+
    
+    public static void main(String[] args) {
+        UserDAO userDAO = new UserDAO();
+        userDAO.getConnection();
+   
+}
 }
 
